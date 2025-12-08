@@ -1,6 +1,6 @@
 {
 	"name": "Python 3",
-	"image": "mcr.microsoft.com/devcontainers/python:2-3.12-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/python:2-{{ python_version }}-bookworm",
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {}
 	},
