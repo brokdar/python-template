@@ -69,3 +69,8 @@ include_devcontainer:
   type: bool
   help: Include VS Code devcontainer configuration?
   default: false
+
+include_dockerfile:
+  type: bool
+  help: Include Dockerfile for containerized deployment?
+  default: false
