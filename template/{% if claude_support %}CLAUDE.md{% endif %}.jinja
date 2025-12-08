@@ -1,0 +1,78 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+{%- if include_devcontainer %}
+
+## Development Environment
+
+This project uses VS Code devcontainers. The development environment runs inside a Docker container with Python {{ python_version }} pre-configured. All dependencies and tools are automatically installed when the container starts.
+
+- The container is based on `mcr.microsoft.com/devcontainers/python:2-{{ python_version }}-bookworm`
+- Use the VS Code command "Dev Containers: Reopen in Container" to start the devcontainer
+- The `.devcontainer/startup.sh` script runs automatically on container creation
+{%- endif %}
+
+## Commands
+
+### General
+
+```bash
+uv sync                                             # Install dependencies
+uv run python -m {{ package_name }}.main            # Run the application
+```
+
+### Code Quality
+
+```bash
+ruff check . --fix      # Lint with auto-fix
+ruff format .           # Format code
+mypy .                  # Type check (strict mode)
+```
+
+### Testing
+
+```bash
+pytest                                              # Run unit tests
+pytest tests/test_main.py                           # Run specific file
+pytest -k "test_create"                             # Run tests matching pattern
+pytest --cov=app --cov-report=term                  # With coverage
+```
+
+## Code Standards
+
+### Type Hints (Mandatory)
+
+- Every function, method, parameter, and variable must have type hints
+- Use `User | None` not `Optional[User]`
+- Never use `Any` unless interfacing with dynamic third-party code
+- Generic types: `list[str]`, `dict[str, int]`, `Repository[User]`
+
+### Documentation
+
+- Google-style docstrings for all public interfaces
+- Include Args, Returns, Raises sections
+- Comments explain WHY, not WHAT
+
+### Logging
+
+- Use `structlog` with key-value pairs: `logger.info("user_created", user_id=1, action="create")`
+- Never use `print()` or f-string logging
+- INFO for business events, WARNING for concerning situations, DEBUG for diagnostics
+
+### Error Handling
+
+- Create specific exceptions with full context (what failed, where, why, actual values)
+- Never use bare `except:` or catch generic `Exception`
+- Never return `None` for failures - raise exceptions
+
+### Import Rules
+
+- All imports at file top (no inline imports except for circular dependencies)
+- Standard library → Third-party → Local imports
+
+## Documentation References
+
+For detailed information, see these documentation files:
+
+- **[docs/coding_guidelines.md](@coding_guidelines.md)** - Complete coding standards and mandatory rules
+- **[docs/testing_guidelines.md](@docs/testing_guidelines.md)** - Testing patterns, mocking strategies, and pytest best practices
