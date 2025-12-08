@@ -13,6 +13,12 @@ A modern Python project template powered by [Copier](https://copier.readthedocs.
 - **pre-commit** hooks for code quality automation
 - **VS Code** configuration included
 
+### Optional Features
+
+- **Dockerfile** - Multi-stage Alpine-based container for deployment
+- **VS Code devcontainer** - Pre-configured development environment
+- **Claude Code support** - CLAUDE.md, custom commands, agents, and coding guidelines
+
 ## Requirements
 
 - Python 3.10+ (for running copier)
@@ -84,6 +90,30 @@ copier update --trust
 
 Or set `include_devcontainer: false` in `.copier-answers.yml` and run `copier update --trust`.
 
+#### Adding/Removing Dockerfile
+
+To add or remove Dockerfile support:
+
+```bash
+cd /path/to/your-project
+copier update --trust
+# When prompted for "Include Dockerfile for containerized deployment?", answer yes/no
+```
+
+Or set `include_dockerfile: true/false` in `.copier-answers.yml` and run `copier update --trust`.
+
+#### Adding/Removing Claude Code support
+
+To add or remove Claude Code integration:
+
+```bash
+cd /path/to/your-project
+copier update --trust
+# When prompted for "Include Claude Code support?", answer yes/no
+```
+
+Or set `claude_support: true/false` in `.copier-answers.yml` and run `copier update --trust`.
+
 ## Template Options
 
 | Option | Description | Default |
@@ -95,32 +125,48 @@ Or set `include_devcontainer: false` in `.copier-answers.yml` and run `copier up
 | `author_name` | Author's full name | - |
 | `author_email` | Author's email address | - |
 | `python_version` | Python version (3.12 or 3.13) | 3.12 |
-| `license` | Project license | MIT |
-| `include_devcontainer` | Include VS Code devcontainer | true |
+| `license` | Project license (MIT or None) | MIT |
+| `include_devcontainer` | Include VS Code devcontainer configuration | false |
+| `include_dockerfile` | Include Dockerfile for containerized deployment | false |
+| `claude_support` | Include Claude Code support (CLAUDE.md, .claude directory) | false |
 
 ## Generated Project Structure
 
 ```text
 your-project/
-├── your_package/           # Main package (dynamic name)
+├── your_package/               # Main package (dynamic name)
 │   ├── __init__.py
-│   ├── main.py             # Application entry point
-│   ├── logging.py          # Structured logging configuration
-│   └── py.typed            # PEP 561 marker
+│   ├── main.py                 # Application entry point
+│   ├── logging.py              # Structured logging configuration
+│   └── py.typed                # PEP 561 marker
 ├── tests/
 │   ├── __init__.py
 │   └── test_main.py
-├── .devcontainer/          # (optional) VS Code devcontainer
+├── .devcontainer/              # (optional) VS Code devcontainer
 │   ├── devcontainer.json
 │   └── startup.sh
+├── .claude/                    # (optional) Claude Code configuration
+│   ├── agents/
+│   │   ├── python-developer.md
+│   │   ├── python-tester.md
+│   │   └── software-architect.md
+│   └── commands/
+│       ├── code-quality.md
+│       └── document.md
+├── docs/                       # (optional) Claude Code documentation
+│   ├── coding_guidelines.md
+│   └── testing_guidelines.md
 ├── .vscode/
-│   └── settings.json       # VS Code configuration
-├── .copier-answers.yml     # Copier answers (for updates)
+│   └── settings.json           # VS Code configuration
+├── .copier-answers.yml         # Copier answers (for updates)
 ├── .gitattributes
 ├── .gitignore
 ├── .pre-commit-config.yaml
 ├── .python-version
 ├── pyproject.toml
+├── Dockerfile                  # (optional) Multi-stage container build
+├── LICENSE                     # (optional) Based on license choice
+├── CLAUDE.md                   # (optional) Claude Code instructions
 └── README.md
 ```
 
