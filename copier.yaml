@@ -64,3 +64,8 @@ license:
     GPL-3.0: GPL-3.0
     None: None
   default: MIT
+
+include_devcontainer:
+  type: bool
+  help: Include VS Code devcontainer configuration?
+  default: false

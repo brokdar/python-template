@@ -48,6 +48,42 @@ cd /path/to/your-project
 copier update --trust
 ```
 
+### Modifying template options
+
+You can change any template option when updating. Copier will add or remove files based on your new answers:
+
+```bash
+cd /path/to/your-project
+copier update --trust
+# Answer the prompts to change options
+```
+
+Or edit `.copier-answers.yml` directly and run `copier update --trust`.
+
+#### Adding devcontainer to an existing project
+
+If you initially created a project without devcontainer support, you can add it:
+
+```bash
+cd /path/to/your-project
+copier update --trust
+# When prompted for "Include VS Code devcontainer configuration?", answer yes
+```
+
+Or edit `.copier-answers.yml` and set `include_devcontainer: true`, then run `copier update --trust`.
+
+#### Removing devcontainer from an existing project
+
+To remove devcontainer support:
+
+```bash
+cd /path/to/your-project
+copier update --trust
+# When prompted for "Include VS Code devcontainer configuration?", answer no
+```
+
+Or set `include_devcontainer: false` in `.copier-answers.yml` and run `copier update --trust`.
+
 ## Template Options
 
 | Option | Description | Default |
@@ -60,6 +96,7 @@ copier update --trust
 | `author_email` | Author's email address | - |
 | `python_version` | Python version (3.12 or 3.13) | 3.12 |
 | `license` | Project license | MIT |
+| `include_devcontainer` | Include VS Code devcontainer | true |
 
 ## Generated Project Structure
 
@@ -73,6 +110,9 @@ your-project/
 ├── tests/
 │   ├── __init__.py
 │   └── test_main.py
+├── .devcontainer/          # (optional) VS Code devcontainer
+│   ├── devcontainer.json
+│   └── startup.sh
 ├── .vscode/
 │   └── settings.json       # VS Code configuration
 ├── .copier-answers.yml     # Copier answers (for updates)
