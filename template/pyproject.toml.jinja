@@ -1,0 +1,88 @@
+[project]
+name = "{{ project_slug }}"
+dynamic = ["version"]
+description = "{{ description }}"
+readme = "README.md"
+requires-python = ">={{ python_version }}"
+dependencies = ["structlog>=25.5.0"]
+{% if author_name or author_email %}
+authors = [
+    { name = "{{ author_name }}"{% if author_email %}, email = "{{ author_email }}"{% endif %} }
+]
+{% endif %}
+{% if license != "None" %}
+license = "{{ license }}"
+{% endif %}
+
+[dependency-groups]
+dev = [
+    "coverage>=7.13.0",
+    "mypy>=1.19.0",
+    "pre-commit>=4.5.0",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.14.8",
+]
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+fallback-version = "0.0.0.dev0"
+raw-options = { search_parent_directories = true, version_scheme = "guess-next-dev", local_scheme = "no-local-version" }
+
+[tool.uv]
+link-mode = "copy"
+
+[tool.mypy]
+strict = true
+warn_unreachable = true
+pretty = true
+show_column_numbers = true
+show_error_codes = true
+show_error_context = true
+disallow_untyped_decorators = false
+namespace_packages = true
+explicit_package_bases = true
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+target-version = "py{{ python_version | replace('.', '') }}"
+fix = true
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "B",
+    "Q",
+    "W",
+    "I",
+    "N",
+    "D",
+    "UP",
+    "S",
+    "PTH",
+    "ISC",
+    "RET",
+    "SIM",
+    "PT",
+    "ASYNC",
+    "PERF",
+]
+ignore = ["E501", "W505", "D100", "D104", "D107", "D401", "B008"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+ignore-decorators = ["typing.overload"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "S105", "S106"]
+
+[tool.ruff.lint.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+keep-runtime-typing = true

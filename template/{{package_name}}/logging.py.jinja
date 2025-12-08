@@ -1,0 +1,98 @@
+"""Structured logging configuration using structlog.
+
+This module provides a production-ready logging setup that:
+- Uses pretty console output during development (when running in a terminal)
+- Uses JSON output in production (when running in containers/non-TTY environments)
+- Supports context variables for request-scoped logging
+- Provides proper exception handling with structured tracebacks
+
+Usage:
+    from {{ package_name }}.logging import configure_logging, get_logger
+
+    # Configure once at application startup
+    configure_logging()
+
+    # Get a logger instance
+    logger = get_logger()
+    logger.info("hello world", user="alice", action="login")
+
+    # Bind context for subsequent calls
+    log = logger.bind(request_id="abc-123")
+    log.info("processing request")
+    log.info("request complete")
+
+    # Use context variables for request-scoped data
+    from structlog.contextvars import bind_contextvars, clear_contextvars
+    bind_contextvars(request_id="abc-123")
+    logger.info("this log includes request_id automatically")
+    clear_contextvars()
+"""
+
+import logging
+import sys
+
+import structlog
+
+
+def configure_logging(
+    level: int = logging.INFO,
+    *,
+    force_json: bool = False,
+    force_console: bool = False,
+) -> None:
+    """Configure structlog with environment-appropriate settings.
+
+    Args:
+        level: Minimum log level (default: logging.INFO)
+        force_json: Force JSON output regardless of environment
+        force_console: Force console output regardless of environment
+    """
+    # Shared processors used in both development and production
+    shared_processors: list[structlog.types.Processor] = [
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.StackInfoRenderer(),
+        structlog.dev.set_exc_info,
+        structlog.processors.TimeStamper(fmt="iso"),
+    ]
+
+    # Determine output format based on environment
+    # Use pretty console output in TTY (development), JSON in non-TTY (production)
+    use_json = force_json or (not force_console and not sys.stderr.isatty())
+
+    if use_json:
+        processors: list[structlog.types.Processor] = [
+            *shared_processors,
+            structlog.processors.dict_tracebacks,
+            structlog.processors.JSONRenderer(),
+        ]
+    else:
+        processors = [
+            *shared_processors,
+            structlog.dev.ConsoleRenderer(),
+        ]
+
+    structlog.configure(
+        processors=processors,
+        wrapper_class=structlog.make_filtering_bound_logger(level),
+        context_class=dict,
+        logger_factory=structlog.PrintLoggerFactory(),
+        cache_logger_on_first_use=True,
+    )
+
+
+def get_logger(**initial_context: object) -> structlog.stdlib.BoundLogger:
+    """Get a configured structlog logger.
+
+    Args:
+        **initial_context: Optional key-value pairs to bind to the logger
+
+    Returns:
+        A configured bound logger instance
+
+    Example:
+        logger = get_logger(service="api", version="1.0")
+        logger.info("starting up")
+    """
+    logger: structlog.stdlib.BoundLogger = structlog.get_logger(**initial_context)
+    return logger

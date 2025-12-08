@@ -1,0 +1,58 @@
+# {{ project_name }}
+
+{{ description }}
+
+## Requirements
+
+- Python {{ python_version }}+
+- [uv](https://docs.astral.sh/uv/) for dependency management
+
+## Setup
+
+```bash
+# Install dependencies
+uv sync
+
+# Install pre-commit hooks
+uv run pre-commit install
+```
+
+## Development
+
+```bash
+# Run the application
+uv run python -m {{ package_name }}.main
+
+# Run tests
+uv run pytest
+
+# Run tests with coverage
+uv run pytest --cov={{ package_name }}
+
+# Type checking
+uv run mypy .
+
+# Linting and formatting
+uv run ruff check .
+uv run ruff format .
+```
+
+## Project Structure
+
+```
+{{ project_slug }}/
+├── {{ package_name }}/     # Main package
+│   ├── __init__.py
+│   ├── main.py             # Application entry point
+│   └── logging.py          # Structured logging configuration
+├── tests/                  # Test suite
+│   └── test_main.py
+├── pyproject.toml          # Project configuration
+└── .pre-commit-config.yaml # Pre-commit hooks
+```
+{% if license != "None" %}
+
+## License
+
+This project is licensed under the {{ license }} License.
+{% endif %}

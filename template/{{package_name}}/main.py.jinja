@@ -1,0 +1,18 @@
+"""Main entry point for {{ project_name }}."""
+
+from {{ package_name }}.logging import configure_logging, get_logger
+
+# Configure logging once at application startup
+configure_logging()
+
+# Get a logger instance
+logger = get_logger()
+
+
+def main() -> None:
+    """Run the main application."""
+    logger.info("hello world")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,8 @@
+"""Test suite for main module."""
+
+from {{ package_name }}.main import main
+
+
+def test_runs_main_without_error() -> None:
+    """Test that main function executes without raising exceptions."""
+    main()
