@@ -282,7 +282,7 @@ jobs:
       - name: Run copier update
         working-directory: /tmp/test-project
         run: |
-          copier update --trust --defaults
+          copier update --trust --defaults --vcs-ref HEAD
 
       - name: Verify modification preserved
         working-directory: /tmp/test-project
