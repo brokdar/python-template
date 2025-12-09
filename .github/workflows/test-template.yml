@@ -18,42 +18,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
-          python-version: "3.12"
+          version: "latest"
 
-      - name: Install dependencies
-        run: pip install pyyaml jinja2
+      - name: Set up Python
+        run: uv python install 3.12
 
       - name: Validate copier.yaml syntax
         run: python -c "import yaml; yaml.safe_load(open('copier.yaml'))"
 
-      - name: Validate Jinja2 templates
+      - name: Validate template with copier dry-run
         run: |
-          python << 'EOF'
-          import os
-          from jinja2 import Environment, FileSystemLoader, exceptions
-
-          env = Environment(loader=FileSystemLoader('template'))
-          errors = []
-
-          for root, dirs, files in os.walk('template'):
-              for f in files:
-                  if f.endswith('.jinja'):
-                      rel_path = os.path.relpath(os.path.join(root, f), 'template')
-                      try:
-                          env.get_template(rel_path)
-                      except exceptions.TemplateSyntaxError as e:
-                          errors.append(f"{rel_path}: {e}")
-
-          if errors:
-              print("Template syntax errors found:")
-              for e in errors:
-                  print(f"  - {e}")
-              exit(1)
-          print("All templates valid!")
-          EOF
+          uv tool install copier
+          copier copy . /tmp/validate-project \
+            --trust \
+            --defaults \
+            --data project_name="Validate" \
+            --data author_name="CI" \
+            --data author_email="ci@example.com" \
+            --pretend
+          echo "Template syntax valid!"
 
   core-matrix:
     name: "py${{ matrix.python }}-${{ matrix.type_checker }}"
