@@ -2,7 +2,8 @@
 	"name": "Python 3",
 	"image": "mcr.microsoft.com/devcontainers/python:2-{{ python_version }}-bookworm",
 	"features": {
-		"ghcr.io/devcontainers/features/git:1": {}
+		"ghcr.io/devcontainers/features/git:1": {}{% if claude_support %},
+		"ghcr.io/devcontainers/features/node:1": {}{% endif %}
 	},
 	"postCreateCommand": "./.devcontainer/startup.sh",
 	"customizations": {
@@ -24,7 +25,8 @@
 				"redhat.vscode-yaml",
 {% if type_checker == 'mypy' %}				"ms-python.mypy-type-checker",{% endif %}
 {% if type_checker == 'pyrefly' %}				"meta.pyrefly",{% endif %}
-				"MermaidChart.vscode-mermaid-chart"
+				"MermaidChart.vscode-mermaid-chart"{% if claude_support %},
+				"Anthropic.claude-code"{% endif %}
 			]
 		}
 	}

@@ -2,6 +2,9 @@
 set -e
 
 echo "Initializing development environment..."
+{% if claude_support %}
+npm install -g @anthropic-ai/claude-code
+{% endif %}
 
 echo "Installing dependencies..."
 curl -LsSf https://astral.sh/uv/install.sh | sh
