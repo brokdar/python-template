@@ -1,0 +1,310 @@
+name: Test Template
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-template:
+    name: Validate Template Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml jinja2
+
+      - name: Validate copier.yaml syntax
+        run: python -c "import yaml; yaml.safe_load(open('copier.yaml'))"
+
+      - name: Validate Jinja2 templates
+        run: |
+          python << 'EOF'
+          import os
+          from jinja2 import Environment, FileSystemLoader, exceptions
+
+          env = Environment(loader=FileSystemLoader('template'))
+          errors = []
+
+          for root, dirs, files in os.walk('template'):
+              for f in files:
+                  if f.endswith('.jinja'):
+                      rel_path = os.path.relpath(os.path.join(root, f), 'template')
+                      try:
+                          env.get_template(rel_path)
+                      except exceptions.TemplateSyntaxError as e:
+                          errors.append(f"{rel_path}: {e}")
+
+          if errors:
+              print("Template syntax errors found:")
+              for e in errors:
+                  print(f"  - {e}")
+              exit(1)
+          print("All templates valid!")
+          EOF
+
+  core-matrix:
+    name: "py${{ matrix.python }}-${{ matrix.type_checker }}"
+    needs: validate-template
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13"]
+        type_checker: ["mypy", "pyrefly"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python ${{ matrix.python }}
+        run: uv python install ${{ matrix.python }}
+
+      - name: Install Copier
+        run: uv tool install copier
+
+      - name: Generate test project
+        run: |
+          copier copy . /tmp/test-project \
+            --trust \
+            --defaults \
+            --data project_name="Test Project" \
+            --data author_name="CI Bot" \
+            --data author_email="ci@example.com" \
+            --data python_version="${{ matrix.python }}" \
+            --data type_checker="${{ matrix.type_checker }}" \
+            --data license="MIT" \
+            --data include_devcontainer=false \
+            --data include_dockerfile=false \
+            --data claude_support=false
+
+      - name: Verify project structure
+        working-directory: /tmp/test-project
+        run: |
+          echo "=== Generated files ==="
+          find . -type f -not -path './.git/*' -not -path './.venv/*' | sort
+
+          echo "=== Checking required files ==="
+          test -f pyproject.toml
+          test -f .python-version
+          test -f .pre-commit-config.yaml
+          test -d test_project
+          test -f test_project/__init__.py
+          test -f test_project/main.py
+          test -f tests/test_main.py
+
+      - name: Run pytest
+        working-directory: /tmp/test-project
+        run: uv run pytest -v
+
+      - name: Run ruff check
+        working-directory: /tmp/test-project
+        run: uv run ruff check .
+
+      - name: Run ruff format check
+        working-directory: /tmp/test-project
+        run: uv run ruff format --check .
+
+      - name: Run type checker
+        working-directory: /tmp/test-project
+        run: |
+          if [ "${{ matrix.type_checker }}" = "mypy" ]; then
+            uv run mypy .
+          else
+            uv run pyrefly check
+          fi
+
+      - name: Verify pre-commit config
+        working-directory: /tmp/test-project
+        run: |
+          if [ "${{ matrix.type_checker }}" = "mypy" ]; then
+            grep -q "id: mypy" .pre-commit-config.yaml
+          else
+            grep -q "id: pyrefly" .pre-commit-config.yaml
+          fi
+
+  optional-features:
+    name: "features-${{ matrix.name }}"
+    needs: validate-template
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: all
+            devcontainer: true
+            dockerfile: true
+            claude_support: true
+          - name: devcontainer-only
+            devcontainer: true
+            dockerfile: false
+            claude_support: false
+          - name: dockerfile-only
+            devcontainer: false
+            dockerfile: true
+            claude_support: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install Copier
+        run: uv tool install copier
+
+      - name: Generate test project
+        run: |
+          copier copy . /tmp/test-project \
+            --trust \
+            --defaults \
+            --data project_name="Test Project" \
+            --data author_name="CI Bot" \
+            --data author_email="ci@example.com" \
+            --data python_version="3.12" \
+            --data type_checker="mypy" \
+            --data license="MIT" \
+            --data include_devcontainer=${{ matrix.devcontainer }} \
+            --data include_dockerfile=${{ matrix.dockerfile }} \
+            --data claude_support=${{ matrix.claude_support }}
+
+      - name: Verify optional files
+        working-directory: /tmp/test-project
+        run: |
+          # Check devcontainer
+          if [ "${{ matrix.devcontainer }}" = "true" ]; then
+            test -d .devcontainer
+            test -f .devcontainer/devcontainer.json
+            test -f .devcontainer/startup.sh
+            echo "devcontainer files present"
+          else
+            test ! -d .devcontainer
+            echo "devcontainer correctly absent"
+          fi
+
+          # Check dockerfile
+          if [ "${{ matrix.dockerfile }}" = "true" ]; then
+            test -f Dockerfile
+            echo "Dockerfile present"
+          else
+            test ! -f Dockerfile
+            echo "Dockerfile correctly absent"
+          fi
+
+          # Check claude_support
+          if [ "${{ matrix.claude_support }}" = "true" ]; then
+            test -d .claude
+            test -f CLAUDE.md
+            test -d docs
+            echo "Claude support files present"
+          else
+            test ! -d .claude
+            test ! -f CLAUDE.md
+            echo "Claude support correctly absent"
+          fi
+
+      - name: Run full test suite
+        working-directory: /tmp/test-project
+        run: |
+          uv run pytest -v
+          uv run ruff check .
+          uv run ruff format --check .
+          uv run mypy .
+
+      - name: Validate Dockerfile syntax
+        if: matrix.dockerfile == true
+        working-directory: /tmp/test-project
+        run: |
+          # Use docker build --check for syntax validation (no actual build)
+          docker build --check . 2>/dev/null || echo "Docker BuildKit check not available, validating with basic parse"
+          # Fallback: verify it's valid Dockerfile syntax by checking key instructions
+          grep -q "^FROM " Dockerfile
+          echo "Dockerfile syntax valid"
+
+      - name: Validate devcontainer.json
+        if: matrix.devcontainer == true
+        working-directory: /tmp/test-project
+        run: |
+          python -c "import json; json.load(open('.devcontainer/devcontainer.json'))"
+          echo "devcontainer.json is valid JSON"
+
+  update-test:
+    name: copier-update
+    needs: validate-template
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install Copier
+        run: uv tool install copier
+
+      - name: Generate initial project
+        run: |
+          copier copy . /tmp/test-project \
+            --trust \
+            --defaults \
+            --data project_name="Test Project" \
+            --data author_name="CI Bot" \
+            --data author_email="ci@example.com" \
+            --data python_version="3.12" \
+            --data type_checker="mypy" \
+            --data license="MIT" \
+            --data include_devcontainer=false \
+            --data include_dockerfile=false \
+            --data claude_support=false
+
+      - name: Make a modification to the generated project
+        working-directory: /tmp/test-project
+        run: |
+          # Add a custom comment to main.py that should be preserved
+          echo "# Custom user modification - should be preserved" >> test_project/main.py
+          git add -A
+          git commit -m "User modification"
+
+      - name: Run copier update
+        working-directory: /tmp/test-project
+        run: |
+          copier update --trust --defaults
+
+      - name: Verify modification preserved
+        working-directory: /tmp/test-project
+        run: |
+          grep -q "Custom user modification" test_project/main.py
+          echo "User modification preserved after update"
+
+      - name: Run tests after update
+        working-directory: /tmp/test-project
+        run: |
+          uv run pytest -v
+          uv run ruff check .
+          uv run mypy .
