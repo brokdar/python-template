@@ -16,12 +16,18 @@ repos:
       - id: ruff-format
   - repo: local
     hooks:
-      - id: mypy
+{% if type_checker == 'mypy' %}      - id: mypy
         name: mypy
         entry: uv run mypy
         types: [python]
         language: system
-      - id: unit-tests
+{% elif type_checker == 'pyrefly' %}      - id: pyrefly
+        name: pyrefly
+        entry: uv run pyrefly check
+        types: [python]
+        language: system
+        pass_filenames: false
+{% endif %}      - id: unit-tests
         name: unit-tests
         entry: uv run pytest
         types: [python]

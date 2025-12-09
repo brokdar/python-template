@@ -7,7 +7,7 @@ A modern Python project template powered by [Copier](https://copier.readthedocs.
 - **Python 3.12/3.13** support with strict type hints
 - **uv** for fast dependency management
 - **ruff** for linting and formatting
-- **mypy** for static type checking
+- **mypy** or **pyrefly** for static type checking
 - **pytest** for testing with coverage
 - **structlog** for production-ready structured logging
 - **pre-commit** hooks for code quality automation
@@ -125,6 +125,7 @@ Or set `claude_support: true/false` in `.copier-answers.yml` and run `copier upd
 | `author_name` | Author's full name | - |
 | `author_email` | Author's email address | - |
 | `python_version` | Python version (3.12 or 3.13) | 3.12 |
+| `type_checker` | Type checker (mypy or pyrefly) | mypy |
 | `license` | Project license (MIT or None) | MIT |
 | `include_devcontainer` | Include VS Code devcontainer configuration | false |
 | `include_dockerfile` | Include Dockerfile for containerized deployment | false |
@@ -189,7 +190,8 @@ copier copy . /tmp/test-project --trust
 # Verify the generated project
 cd /tmp/test-project
 uv run pytest
-uv run mypy .
+uv run mypy .           # If using mypy
+uv run pyrefly check    # If using pyrefly
 uv run ruff check .
 ```
 

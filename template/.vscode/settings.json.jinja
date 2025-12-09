@@ -17,6 +17,6 @@
     ],
     "python.testing.unittestEnabled": false,
     "scm.defaultViewMode": "tree",
-    "ruff.importStrategy": "fromEnvironment",
-    "mypy-type-checker.importStrategy": "fromEnvironment"
+    "ruff.importStrategy": "fromEnvironment"{% if type_checker == 'mypy' %},
+    "mypy-type-checker.importStrategy": "fromEnvironment"{% endif %}
 }

@@ -26,7 +26,8 @@ uv run python -m {{ package_name }}.main            # Run the application
 ```bash
 ruff check . --fix      # Lint with auto-fix
 ruff format .           # Format code
-mypy .                  # Type check (strict mode)
+{% if type_checker == 'mypy' %}mypy .                  # Type check (strict mode){% endif %}
+{% if type_checker == 'pyrefly' %}pyrefly check          # Type check{% endif %}
 ```
 
 ### Testing

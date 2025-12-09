@@ -54,6 +54,14 @@ python_version:
     - "3.13"
   default: "3.12"
 
+type_checker:
+  type: str
+  help: Type checker to use
+  choices:
+    - mypy
+    - pyrefly
+  default: mypy
+
 license:
   type: str
   help: License for the project

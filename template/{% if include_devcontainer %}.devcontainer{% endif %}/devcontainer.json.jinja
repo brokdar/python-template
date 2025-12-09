@@ -22,7 +22,8 @@
 				"ms-vscode.test-adapter-converter",
 				"hbenl.vscode-test-explorer",
 				"redhat.vscode-yaml",
-				"ms-python.mypy-type-checker",
+{% if type_checker == 'mypy' %}				"ms-python.mypy-type-checker",{% endif %}
+{% if type_checker == 'pyrefly' %}				"meta.pyrefly",{% endif %}
 				"MermaidChart.vscode-mermaid-chart"
 			]
 		}
