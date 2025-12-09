@@ -84,3 +84,12 @@ claude_support:
   type: bool
   help: Include Claude Code support (CLAUDE.md and .claude directory)?
   default: false
+
+ci_provider:
+  type: str
+  help: Include CI/CD pipeline configuration?
+  choices:
+    None: None
+    GitHub Actions: github
+    GitLab CI: gitlab
+  default: None

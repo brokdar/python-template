@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - name: Set up Python
+        run: uv python install {{ python_version }}
+      - name: Install dependencies
+        run: uv sync
+      - name: Lint with ruff
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+      - name: Type check
+{%- if type_checker == 'mypy' %}
+        run: uv run mypy .
+{%- elif type_checker == 'pyrefly' %}
+        run: uv run pyrefly check
+{%- endif %}
+      - name: Run tests
+        run: uv run pytest -v

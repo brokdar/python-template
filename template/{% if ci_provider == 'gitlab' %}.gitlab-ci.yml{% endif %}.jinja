@@ -1,0 +1,39 @@
+stages:
+  - lint
+  - test
+
+default:
+  image: python:{{ python_version }}-slim
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+.uv-setup: &uv-setup
+  before_script:
+    - pip install uv
+    - uv sync
+
+ruff:
+  stage: lint
+  <<: *uv-setup
+  script:
+    - uv run ruff check .
+    - uv run ruff format --check .
+
+type-check:
+  stage: lint
+  <<: *uv-setup
+  script:
+{%- if type_checker == 'mypy' %}
+    - uv run mypy .
+{%- elif type_checker == 'pyrefly' %}
+    - uv run pyrefly check
+{%- endif %}
+
+test:
+  stage: test
+  <<: *uv-setup
+  script:
+    - uv run pytest -v
