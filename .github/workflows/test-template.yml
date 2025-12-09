@@ -272,6 +272,8 @@ jobs:
       - name: Make a modification to the generated project
         working-directory: /tmp/test-project
         run: |
+          git config user.email "ci@example.com"
+          git config user.name "CI Bot"
           # Add a custom comment to main.py that should be preserved
           echo "# Custom user modification - should be preserved" >> test_project/main.py
           git add -A
