@@ -6,7 +6,7 @@ _answers_file: .copier-answers.yml
 _tasks:
   - "git init"
   - "uv sync"
-  - "uv run pre-commit install"
+  - "uv run prek install"
 
 _message_after_copy: |
   Your project "{{ project_name }}" has been created!

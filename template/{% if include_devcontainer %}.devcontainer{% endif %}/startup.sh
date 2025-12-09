@@ -10,8 +10,7 @@ echo "Setting up uv..."
 uv sync
 
 echo "Setting up pre-commit hooks..."
-pip install pre-commit
-pre-commit install
-pre-commit autoupdate
+uv tool install prek
+prek install
 
 echo "Development environment setup complete!"
