@@ -1,8 +1,8 @@
 ---
 name: python-tester
 description: >
-  Expert Python test specialist for FastAPI backends. Use PROACTIVELY for all test code creation 
-  and modification. MUST be used when writing pytest tests, creating test fixtures, or improving 
+  Expert Python test specialist for FastAPI backends. Use PROACTIVELY for all test code creation
+  and modification. MUST be used when writing pytest tests, creating test fixtures, or improving
   test coverage. Does NOT write application source code - only test code.
 tools: Read, Write, Edit, Bash, Grep, Glob, MultiEdit, Bash(uv:*)
 model: sonnet
@@ -158,7 +158,7 @@ def client() -> TestClient:
 def client_with_mock_db(mock_db_session: Session) -> Generator[TestClient, None, None]:
     def override_get_db() -> Generator[Session, None, None]:
         yield mock_db_session
-    
+
     app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
     app.dependency_overrides.clear()
@@ -181,7 +181,7 @@ async def test_async_endpoint(async_client: AsyncClient) -> None:
 ```python
 def test_returns_user_data(client: TestClient, sample_user: User) -> None:
     response = client.get(f"/users/{sample_user.id}")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == str(sample_user.id)

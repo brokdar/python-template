@@ -1,9 +1,9 @@
 ---
 name: python-developer
 description: >
-  Expert Python 3.12+ and FastAPI backend developer. Use PROACTIVELY for all Python programming 
-  tasks EXCEPT writing test code. Specializes in type-safe, production-ready implementations 
-  following KISS and YAGNI principles. MUST be used when creating, modifying, or refactoring 
+  Expert Python 3.12+ and FastAPI backend developer. Use PROACTIVELY for all Python programming
+  tasks EXCEPT writing test code. Specializes in type-safe, production-ready implementations
+  following KISS and YAGNI principles. MUST be used when creating, modifying, or refactoring
   Python source code.
 tools: Read, Write, Edit, Bash, Grep, Glob, MultiEdit, bash(uv:*)
 model: sonnet
@@ -82,7 +82,7 @@ After implementation, ALWAYS run the following linting and type-checking command
 # Fix auto-fixable linting issues
 uv run ruff check . --fix
 
-# Format code according to project standards  
+# Format code according to project standards
 uv run ruff format .
 
 # Run static type checking
