@@ -1,183 +1,144 @@
 # Python Project Template
 
-A modern Python project template powered by [Copier](https://copier.readthedocs.io/).
+[![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13-blue?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Copier](https://img.shields.io/badge/copier-template-yellow?style=flat-square)](https://copier.readthedocs.io/)
+[![License](https://img.shields.io/github/license/brokdar/python-template?style=flat-square)](LICENSE)
+[![uv](https://img.shields.io/badge/uv-package%20manager-blueviolet?style=flat-square)](https://docs.astral.sh/uv/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&style=flat-square)](https://docs.astral.sh/ruff/)
 
-## Features
+> Opinionated [Copier](https://copier.readthedocs.io/) template for production-ready Python projects.
+> Zero config. Type-safe. Modern tooling.
 
-- **Python 3.12/3.13** support with strict type hints
-- **uv** for fast dependency management
-- **ruff** for linting and formatting
-- **mypy** or **pyrefly** for static type checking
-- **pytest** for testing with coverage
-- **structlog** for production-ready structured logging
-- **pre-commit** hooks for code quality automation
-- **VS Code** configuration included
+## Highlights
 
-### Optional Features
+- **Python 3.12/3.13** with strict type hints and PEP 561 compliance
+- **[uv](https://docs.astral.sh/uv/)** for blazing-fast dependency management
+- **[ruff](https://docs.astral.sh/ruff/)** for linting + formatting (replaces black, isort, flake8)
+- **[mypy](https://mypy.readthedocs.io/)** or **[pyrefly](https://github.com/AstriconGmbH/pyrefly)** for static type checking
+- **[pytest](https://docs.pytest.org/)** with coverage out of the box
+- **[structlog](https://www.structlog.org/)** for production-ready structured logging
+- **[pre-commit](https://pre-commit.com/)** hooks auto-configured
+- **Optional**: Dockerfile, VS Code devcontainer, Claude Code support, GitHub Actions / GitLab CI
 
-- **Dockerfile** - Multi-stage Alpine-based container for deployment
-- **VS Code devcontainer** - Pre-configured development environment
-- **Claude Code support** - CLAUDE.md, custom commands, agents, and coding guidelines
+## Quick Start
 
-## Requirements
-
-- Python 3.10+ (for running copier)
-- Git 2.27+
-- [uv](https://docs.astral.sh/uv/)
-- [Copier](https://copier.readthedocs.io/)
-
-## Usage
-
-### Generate a new project
+### Create a new project
 
 ```bash
-# Install copier (if not already installed)
-pipx install copier
-# or
-uv tool install copier
-
-# Generate a new project from this template
-copier copy gh:your-username/python-template /path/to/new-project --trust
-
-# Or from a local copy
-copier copy /path/to/python-template /path/to/new-project --trust
+uvx copier copy gh:brokdar/python-template ./my-project --trust
 ```
 
-The `--trust` flag is required because the template runs post-generation tasks (git init, uv sync, pre-commit install).
-
-### Update an existing project
-
-When the template is updated, you can pull in the latest changes:
+### Skip all prompts (use defaults)
 
 ```bash
-cd /path/to/your-project
-copier update --trust
+uvx copier copy gh:brokdar/python-template ./my-project --trust --defaults
 ```
 
-### Modifying template options
-
-You can change any template option when updating. Copier will add or remove files based on your new answers:
+### Override specific options
 
 ```bash
-cd /path/to/your-project
-copier update --trust
-# Answer the prompts to change options
+uvx copier copy gh:brokdar/python-template ./my-project --trust \
+  --data project_name="My App" \
+  --data python_version="3.13" \
+  --data include_dockerfile=true
 ```
 
-Or edit `.copier-answers.yml` directly and run `copier update --trust`.
+> **Note**: The `--trust` flag is required because the template runs post-generation tasks (`git init`, `uv sync`, `pre-commit install`).
 
-#### Adding devcontainer to an existing project
+## Updating Your Project
 
-If you initially created a project without devcontainer support, you can add it:
+Pull in the latest template changes:
 
 ```bash
-cd /path/to/your-project
-copier update --trust
-# When prompted for "Include VS Code devcontainer configuration?", answer yes
+cd ./my-project
+uvx copier update --trust
 ```
 
-Or edit `.copier-answers.yml` and set `include_devcontainer: true`, then run `copier update --trust`.
-
-#### Removing devcontainer from an existing project
-
-To remove devcontainer support:
+Skip prompts and keep current answers:
 
 ```bash
-cd /path/to/your-project
-copier update --trust
-# When prompted for "Include VS Code devcontainer configuration?", answer no
+uvx copier update --trust --defaults
 ```
 
-Or set `include_devcontainer: false` in `.copier-answers.yml` and run `copier update --trust`.
-
-#### Adding/Removing Dockerfile
-
-To add or remove Dockerfile support:
+Change template options during update:
 
 ```bash
-cd /path/to/your-project
-copier update --trust
-# When prompted for "Include Dockerfile for containerized deployment?", answer yes/no
+uvx copier update --trust --data include_dockerfile=true
 ```
 
-Or set `include_dockerfile: true/false` in `.copier-answers.yml` and run `copier update --trust`.
-
-#### Adding/Removing Claude Code support
-
-To add or remove Claude Code integration:
-
-```bash
-cd /path/to/your-project
-copier update --trust
-# When prompted for "Include Claude Code support?", answer yes/no
-```
-
-Or set `claude_support: true/false` in `.copier-answers.yml` and run `copier update --trust`.
+Or edit `.copier-answers.yml` directly, then run `uvx copier update --trust`.
 
 ## Template Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `project_name` | Human-readable project name | - |
-| `project_slug` | PyPI package name (lowercase with hyphens) | derived from project_name |
-| `package_name` | Python package name (snake_case) | derived from project_slug |
-| `description` | Brief project description | "Add your description here" |
-| `author_name` | Author's full name | - |
-| `author_email` | Author's email address | - |
-| `python_version` | Python version (3.12 or 3.13) | 3.12 |
-| `type_checker` | Type checker (mypy or pyrefly) | mypy |
-| `license` | Project license (MIT or None) | MIT |
-| `include_devcontainer` | Include VS Code devcontainer configuration | false |
-| `include_dockerfile` | Include Dockerfile for containerized deployment | false |
-| `claude_support` | Include Claude Code support (CLAUDE.md, .claude directory) | false |
+| `project_name` | Human-readable project name | *required* |
+| `project_slug` | PyPI package name (lowercase, hyphens) | derived |
+| `package_name` | Python import name (snake_case) | derived |
+| `description` | Brief project description | `"Add your description here"` |
+| `author_name` | Author's full name | *required* |
+| `author_email` | Author's email address | *required* |
+| `python_version` | Python version (`3.12`, `3.13`) | `3.12` |
+| `type_checker` | Type checker (`mypy`, `pyrefly`) | `mypy` |
+| `license` | License (`MIT`, `None`) | `MIT` |
+| `include_devcontainer` | VS Code devcontainer config | `false` |
+| `include_dockerfile` | Multi-stage Alpine Dockerfile | `false` |
+| `claude_support` | Claude Code integration | `false` |
+| `ci_provider` | CI/CD (`None`, `github`, `gitlab`) | `None` |
 
-## Generated Project Structure
+<details>
+<summary><strong>Generated Project Structure</strong></summary>
 
 ```text
-your-project/
-├── your_package/               # Main package (dynamic name)
+my-project/
+├── my_package/               # Main package (dynamic name)
 │   ├── __init__.py
-│   ├── main.py                 # Application entry point
-│   ├── logging.py              # Structured logging configuration
-│   └── py.typed                # PEP 561 marker
+│   ├── main.py               # Application entry point
+│   ├── logging.py            # Structured logging config
+│   └── py.typed              # PEP 561 marker
 ├── tests/
 │   ├── __init__.py
 │   └── test_main.py
-├── .devcontainer/              # (optional) VS Code devcontainer
+├── .devcontainer/            # (if include_devcontainer)
 │   ├── devcontainer.json
 │   └── startup.sh
-├── .claude/                    # (optional) Claude Code configuration
+├── .claude/                  # (if claude_support)
 │   ├── agents/
-│   │   ├── python-developer.md
-│   │   ├── python-tester.md
-│   │   └── software-architect.md
 │   └── commands/
-│       ├── code-quality.md
-│       └── document.md
-├── docs/                       # (optional) Claude Code documentation
-│   ├── coding_guidelines.md
-│   └── testing_guidelines.md
+├── .github/workflows/        # (if ci_provider=github)
+│   └── ci.yml
 ├── .vscode/
-│   └── settings.json           # VS Code configuration
-├── .copier-answers.yml         # Copier answers (for updates)
-├── .gitattributes
+│   └── settings.json
+├── .copier-answers.yml       # Template answers (for updates)
 ├── .gitignore
 ├── .pre-commit-config.yaml
 ├── .python-version
 ├── pyproject.toml
-├── Dockerfile                  # (optional) Multi-stage container build
-├── LICENSE                     # (optional) Based on license choice
-├── CLAUDE.md                   # (optional) Claude Code instructions
+├── Dockerfile                # (if include_dockerfile)
+├── LICENSE                   # (if license=MIT)
+├── CLAUDE.md                 # (if claude_support)
 └── README.md
 ```
 
-## Post-Generation Tasks
+</details>
 
-After generating a project, the template automatically:
+## Post-Generation
 
-1. Initializes a git repository (`git init`)
-2. Installs dependencies (`uv sync`)
-3. Sets up pre-commit hooks (`uv run pre-commit install`)
+The template automatically runs:
+
+1. `git init --initial-branch=main`
+2. `uv sync` — installs all dependencies
+3. `uvx prek install` — configures pre-commit hooks
+
+Start coding immediately:
+
+```bash
+cd ./my-project
+uv run python -m my_package.main
+uv run pytest
+uv run ruff check .
+uv run mypy .
+```
 
 ## Development
 
@@ -190,11 +151,16 @@ copier copy . /tmp/test-project --trust
 # Verify the generated project
 cd /tmp/test-project
 uv run pytest
-uv run mypy .           # If using mypy
-uv run pyrefly check    # If using pyrefly
+uv run mypy .
 uv run ruff check .
 ```
 
+### Template structure
+
+- `copier.yaml` — Template configuration (questions, defaults, validators, tasks)
+- `template/` — All template files (Jinja2 processed)
+- Conditional directories use Jinja syntax: `{% if condition %}dirname{% endif %}/`
+
 ## License
 
-MIT
+[MIT](LICENSE)

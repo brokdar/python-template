@@ -2,57 +2,82 @@
 
 {{ description }}
 
-## Requirements
+## Prerequisites
 
 - Python {{ python_version }}+
-- [uv](https://docs.astral.sh/uv/) for dependency management
+- [uv](https://docs.astral.sh/uv/)
 
-## Setup
+## Getting Started
 
 ```bash
 # Install dependencies
 uv sync
 
-# Install pre-commit hooks
-uv run pre-commit install
-```
-
-## Development
-
-```bash
 # Run the application
 uv run python -m {{ package_name }}.main
 
 # Run tests
 uv run pytest
+```
 
-# Run tests with coverage
-uv run pytest --cov={{ package_name }}
+## Development
+
+### Code Quality
+
+```bash
+# Linting
+uv run ruff check .
+
+# Formatting
+uv run ruff format .
 
 # Type checking
-uv run mypy .
+uv run {{ type_checker }}{% if type_checker == "pyrefly" %} check{% endif %} .
 
-# Linting and formatting
-uv run ruff check .
-uv run ruff format .
+# Run all checks (via pre-commit)
+uv run pre-commit run --all-files
 ```
+
+### Testing
+
+```bash
+# Run tests
+uv run pytest
+
+# With coverage
+uv run pytest --cov={{ package_name }}
+
+# Verbose output
+uv run pytest -v
+```
+{% if include_dockerfile %}
+
+### Docker
+
+```bash
+# Build image
+docker build -t {{ project_slug }} .
+
+# Run container
+docker run --rm {{ project_slug }}
+```
+{% endif %}
 
 ## Project Structure
 
-```
-{{ project_slug }}/
-├── {{ package_name }}/     # Main package
-│   ├── __init__.py
-│   ├── main.py             # Application entry point
-│   └── logging.py          # Structured logging configuration
-├── tests/                  # Test suite
-│   └── test_main.py
-├── pyproject.toml          # Project configuration
-└── .pre-commit-config.yaml # Pre-commit hooks
+```text
+{{ package_name }}/
+├── __init__.py
+├── main.py          # Application entry point
+├── logging.py       # Structured logging (structlog)
+└── py.typed         # PEP 561 type marker
+
+tests/
+└── test_main.py     # Test suite
 ```
 {% if license != "None" %}
 
 ## License
 
-This project is licensed under the {{ license }} License.
+[{{ license }}](LICENSE)
 {% endif %}
