@@ -4,9 +4,9 @@ _templates_suffix: .jinja
 _answers_file: .copier-answers.yml
 
 _tasks:
-  - "git init"
+  - "git init --initial-branch=main"
   - "uv sync"
-  - "uv run prek install"
+  - "uvx prek install"
 
 _message_after_copy: |
   Your project "{{ project_name }}" has been created!
