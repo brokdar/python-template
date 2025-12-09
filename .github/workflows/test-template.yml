@@ -277,7 +277,7 @@ jobs:
           # Add a custom comment to main.py that should be preserved
           echo "# Custom user modification - should be preserved" >> test_project/main.py
           git add -A
-          git commit -m "User modification"
+          git commit -m "User modification" --no-verify
 
       - name: Run copier update
         working-directory: /tmp/test-project
